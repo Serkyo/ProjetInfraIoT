@@ -33,6 +33,10 @@ public class TelAdmin extends AppareilIOT {
         channel.basicConsume(queueName, true, deliverCallback, consumerTag -> { });
     }
 
+    public void emitAction() {
+        
+    }
+
 
     @Override
     public void run() {        
