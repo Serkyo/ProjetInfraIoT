@@ -1,24 +1,19 @@
 package com.laverie;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DeliverCallback;
-
 /**
  *
  * @author arthu
  */
-public class TelAdmin {
+public class TelAdmin extends AppareilIOT {
 
     public TelAdmin() {
         // ...
 
-        start();
     }
 
-    public void start() {
-
+    @Override
+    public void run() {        
+        System.out.println("Hello world !");
     }
 
 }
