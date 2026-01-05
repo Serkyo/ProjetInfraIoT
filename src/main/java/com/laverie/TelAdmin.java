@@ -12,8 +12,6 @@ import com.rabbitmq.client.DeliverCallback;
  */
 public class TelAdmin extends AppareilIOT {
 
-    private static final String EXCHANGE_NAME = "q_admin";
-
     public TelAdmin() {}
 
     public void receiveData() throws Exception {
@@ -22,9 +20,9 @@ public class TelAdmin extends AppareilIOT {
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
-        channel.exchangeDeclare(EXCHANGE_NAME, "topic");
+        channel.exchangeDeclare(AppareilIOT.EXCHANGE_NAME, "topic");
         String queueName = channel.queueDeclare().getQueue();
-        channel.queueBind(queueName, EXCHANGE_NAME, "laverie.*");
+        channel.queueBind(queueName, AppareilIOT.EXCHANGE_NAME, "laverie.#");
 
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
