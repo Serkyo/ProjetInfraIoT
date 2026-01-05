@@ -11,5 +11,9 @@ public class Main {
         AppareilIOT.chargementEnv(dotenv);
 
         ExecutorService executorService = Executors.newFixedThreadPool(Integer.parseInt(dotenv.get("NOMBRE_D_APPAREILS")));
+
+        executorService.execute(new MachineALaver(1));
+
+        executorService.shutdown();
     }
 }
