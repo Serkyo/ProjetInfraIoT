@@ -1,8 +1,15 @@
 package com.laverie;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class Main {
     public static void main(String[] args) {
-        AppareilIOT.chargementEnv();
-        System.out.println("Hello world !");
+        Dotenv dotenv = Dotenv.load();
+        AppareilIOT.chargementEnv(dotenv);
+
+        ExecutorService executorService = Executors.newFixedThreadPool(Integer.parseInt(dotenv.get("NOMBRE_D_APPAREILS")));
     }
 }
