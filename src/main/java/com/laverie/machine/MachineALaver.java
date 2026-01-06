@@ -1,11 +1,11 @@
 package com.laverie.machine;
 
+import java.nio.charset.StandardCharsets;
+
 import com.laverie.AppareilIOT;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-
-import java.nio.charset.StandardCharsets;
 
 public class MachineALaver extends AppareilIOT {
     public static void main(String[] args) {

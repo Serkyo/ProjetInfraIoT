@@ -13,6 +13,20 @@ services:
       - rabbitmq-net
     deploy:
       replicas: 5
+    
+  tel-admin:
+    container_name: "TelAdmin"
+    build:
+      context: .
+      dockerfile: src/main/java/com/laverie/admin/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      HOST: ${HOST}
+      EXCHANGE_NAME: ${EXCHANGE_NAME}
+    networks:
+      - rabbitmq-net
 
   rabbitmq:
     image: rabbitmq:4.2.2-management-alpine

@@ -13,7 +13,7 @@ import com.rabbitmq.client.DeliverCallback;
  */
 public class TelAdmin extends AppareilIOT {
 
-    public void receiveData() throws Exception {
+    private void receiveData() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(AppareilIOT.HOST);
         Connection connection = factory.newConnection();
@@ -32,18 +32,21 @@ public class TelAdmin extends AppareilIOT {
         channel.basicConsume(queueName, true, deliverCallback, consumerTag -> { });
     }
 
-    public void emitAction() throws Exception {
-        
+    private void emitAction() throws Exception {
+  
     }
 
 
-    public void main() {        
-        System.out.println("Hello world !");
+    public static void main(String[] args) {        
+        System.out.println("DEMARRAGE");
+        TelAdmin tel = new TelAdmin();
+        System.out.println(HOST);
+        System.out.println(EXCHANGE_NAME);
         try {
-            receiveData();
-            emitAction();
-        } catch (Exception ex) {
-            System.out.println(ex);
+            tel.receiveData();
+            tel.emitAction();
+        } catch (Exception e) {
+            System.out.println(e);
         }
     }
 
