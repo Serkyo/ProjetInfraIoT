@@ -1,9 +1,9 @@
 package com.laverie.admin;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 
 import com.laverie.AppareilIOT;
+import com.laverie.utils.DatabaseManager;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -28,21 +28,15 @@ public class TelAdmin extends AppareilIOT {
 
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
-        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+        DeliverCallback deliverCallback;
+        deliverCallback = (consumerTag, delivery) -> {
             String routingKey = delivery.getEnvelope().getRoutingKey();
             String message = new String(delivery.getBody(), "UTF-8");
 
             String[] slicedRoutingKey = routingKey.split("\\.");
 
-            if (slicedRoutingKey[1].equals("machine")) {
-                
-                if (slicedRoutingKey[3].equals("status")) {
-                    System.out.println(" [x] Received '" + message + "' from machine à laver n°" + slicedRoutingKey[2]);
-                }
-                if (slicedRoutingKey[3].equals("temps_restant")) {
-                    System.out.println("Machine à laver n°" + slicedRoutingKey[2] + " => Il reste " + slicedRoutingKey[3] + "s");
-                }
-
+            if (slicedRoutingKey[1].equals("machine") && slicedRoutingKey[3].equals("fini")) {
+                DatabaseManager.getLogMachines();
             }
 
         };
@@ -61,6 +55,7 @@ public class TelAdmin extends AppareilIOT {
             System.out.println("Sending one message to machine " + id);
             String routingKey = "laverie.machine." + id + ".toggle";
             newChannel.basicPublish(EXCHANGE_NAME, routingKey, null, action.getBytes(StandardCharsets.UTF_8));
+            DatabaseManager.getLogMachines();
             Thread.sleep(5000);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -77,26 +72,4 @@ public class TelAdmin extends AppareilIOT {
             System.out.println(e);
         }
     }
-
-
-
-
-    // private void getStatus() {
-    //     String message = "La machine " + id + "est ";
-
-    //     switch (status) {
-    //         case "on":
-    //             message += "en cours de lavage.";
-    //             break;
-            
-    //         case "off":
-    //             message += "arrêtée.";
-    //             break;
-        
-    //         default:
-    //             message += "en pause.";
-    //             break;
-    //     }
-    // }
-
 }

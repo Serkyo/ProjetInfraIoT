@@ -3,6 +3,7 @@ package com.laverie.utils;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -36,6 +37,37 @@ public class DatabaseManager {
     }
 
     public static void getLogMachines() {
-        String sql = "SELECT * FROM log_machines";
+        String sql = "SELECT DISTINCT ON (id) id, nouveau_status, date_changement, id_utilisateur FROM log_machines BY id, date_changement DESC;";
+
+        try {
+            Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+
+            Boolean isEmpty = true;
+
+            while (rs.next()) {
+                isEmpty = false;
+
+                int idMachine = rs.getInt("id");
+                String status = rs.getString("nouveau_status");
+                Timestamp dateChangement = rs.getTimestamp("date_changement");
+                int idUtilisateur = rs.getInt("id_utilisateur");
+
+                System.out.println(
+                    "Machine " + idMachine +
+                    " | Status: " + status +
+                    " | Date: " + dateChangement +
+                    " | Utilisateur: " + idUtilisateur
+                );
+            }
+
+            if (isEmpty) {
+                System.err.println("Aucune donnée récupérées des logs des machines...");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
