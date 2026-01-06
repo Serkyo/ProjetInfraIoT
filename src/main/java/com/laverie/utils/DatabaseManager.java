@@ -29,7 +29,7 @@ public class DatabaseManager {
             stmt.setTimestamp(7, new Timestamp(dateFin.getTime()));
 
             stmt.executeUpdate();
-            System.out.println("New row inserted into the database");
+            System.out.println("New row inserted into the database at the table historique_machines");
             connection.close();
         } catch (SQLException e) {
             System.err.println("An error occured while inserting into the database : " + e.getMessage());
@@ -48,7 +48,7 @@ public class DatabaseManager {
             stmt.setString(4, idMachine);
 
             stmt.executeUpdate();
-            System.out.println("New row inserted into the database");
+            System.out.println("New row inserted into the database at the table log_machines");
             connection.close();
         } catch (SQLException e) {
             System.err.println("An error occured while inserting into the database : " + e.getMessage());
