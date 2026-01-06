@@ -36,26 +36,50 @@ public class DatabaseManager {
         }
     }
 
+    public static void insererLogMachine(String nouveauStatus, String idUtilisateur, String idMachine) {
+        String sql = "INSERT INTO log_machines (nouveau_status, date_changement, id_utilisateur, id_machine) VALUES (?, ?, ?, ?)";
+
+        try {
+            Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, nouveauStatus);
+            stmt.setTimestamp(2, new Timestamp(new Date().getTime()));
+            stmt.setString(3, idUtilisateur);
+            stmt.setString(4, idMachine);
+
+            stmt.executeUpdate();
+            System.out.println("New row inserted into the database");
+            connection.close();
+        } catch (SQLException e) {
+            System.err.println("An error occured while inserting into the database : " + e.getMessage());
+        }
+    }
+
     public static void getLogMachines() {
-        String sql = "SELECT DISTINCT ON (id) id, nouveau_status, date_changement, id_utilisateur FROM log_machines BY id, date_changement DESC;";
+        String sql =
+            "SELECT DISTINCT ON (id_machine) id, id_machine, nouveau_status, date_changement, id_utilisateur " +
+            "FROM log_machines " +
+            "ORDER BY id_machine, date_changement DESC";
 
         try {
             Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
             PreparedStatement stmt = connection.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
 
-            Boolean isEmpty = true;
+            boolean isEmpty = true;
 
             while (rs.next()) {
                 isEmpty = false;
 
-                int idMachine = rs.getInt("id");
+                int idLog = rs.getInt("id");
+                String idMachine = rs.getString("id_machine");
                 String status = rs.getString("nouveau_status");
                 Timestamp dateChangement = rs.getTimestamp("date_changement");
-                int idUtilisateur = rs.getInt("id_utilisateur");
+                String idUtilisateur = rs.getString("id_utilisateur");
 
                 System.out.println(
-                    "Machine " + idMachine +
+                    "Log #" + idLog +
+                    " | Machine: " + idMachine +
                     " | Status: " + status +
                     " | Date: " + dateChangement +
                     " | Utilisateur: " + idUtilisateur
@@ -63,8 +87,12 @@ public class DatabaseManager {
             }
 
             if (isEmpty) {
-                System.err.println("Aucune donnée récupérées des logs des machines...");
+                System.err.println("Aucune donnée récupérée des logs des machines...");
             }
+
+            rs.close();
+            stmt.close();
+            connection.close();
 
         } catch (SQLException e) {
             e.printStackTrace();

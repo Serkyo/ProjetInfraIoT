@@ -14,8 +14,9 @@ INSERT INTO historique_machines(id_machine, type_cycle, duree, conso_elec, conso
 VALUES ('0', 'LOL', 20, 55.0, 55.0, '2026-01-06 10:00:00', '2026-01-06 10:20:00');
 
 CREATE TABLE IF NOT EXISTS log_machines (
-    id INT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     nouveau_status VARCHAR,
     date_changement TIMESTAMP,
-    id_utilisateur INT
+    id_utilisateur VARCHAR,
+    id_machine VARCHAR
 );
