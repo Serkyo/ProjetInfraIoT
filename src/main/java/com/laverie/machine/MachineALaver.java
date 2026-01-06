@@ -145,8 +145,8 @@ public class MachineALaver extends AppareilIOT {
     }
 
     public float getConsoElec() {
-        float min = cycle.getConsoElecMin();
-        float max = cycle.getConsoElecMax();
+        float min = cycle.getConsoElecMin() / 60;
+        float max = cycle.getConsoElecMax() / 60;
         if (essorage && tempsRestant <= 20) {
             min += 2;
             max += 2;
@@ -158,7 +158,7 @@ public class MachineALaver extends AppareilIOT {
         if (essorage && tempsRestant <= 20) {
             return 0;
         }
-        return ThreadLocalRandom.current().nextFloat(cycle.getConsoEauMin(), cycle.getConsoEauMax());
+        return ThreadLocalRandom.current().nextFloat(cycle.getConsoEauMin(), cycle.getConsoEauMax()) / 60;
     }
 
     private void reset() {

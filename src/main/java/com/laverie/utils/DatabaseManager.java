@@ -25,6 +25,7 @@ public class DatabaseManager {
 
             stmt.executeUpdate();
             System.out.println("New row inserted into the database");
+            connection.close();
         } catch (SQLException e) {
             System.err.println("An error occured while inserting into the database : " + e.getMessage());
         }
