@@ -1,50 +1,105 @@
 services:
-  machine-a-laver:
+  machine-a-laver1:
     build:
       context: .
-      dockerfile: src/main/java/com/laverie/machine/DockerFile
+      dockerfile: src/main/java/com/laverie/machine/Dockerfile
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      db:
         condition: service_healthy
     environment:
       HOST: ${HOST}
       EXCHANGE_NAME: ${EXCHANGE_NAME}
+      ID: ${MACHINE1_ID}
     networks:
-      - rabbitmq-net
-    deploy:
-      replicas: 5
-    
+      - laverie-net
+
+  machine-a-laver2:
+    build:
+      context: .
+      dockerfile: src/main/java/com/laverie/machine/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      HOST: ${HOST}
+      EXCHANGE_NAME: ${EXCHANGE_NAME}
+      ID: ${MACHINE2_ID}
+    networks:
+      - laverie-net
+
+  machine-a-laver3:
+    build:
+      context: .
+      dockerfile: src/main/java/com/laverie/machine/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      HOST: ${HOST}
+      EXCHANGE_NAME: ${EXCHANGE_NAME}
+      ID: ${MACHINE3_ID}
+    networks:
+      - laverie-net
+
   tel-admin:
-    container_name: "TelAdmin"
+    container_name: 'TelAdmin'
     build:
       context: .
       dockerfile: src/main/java/com/laverie/admin/Dockerfile
     depends_on:
       rabbitmq:
         condition: service_healthy
+      db:
+        condition: service_healthy
     environment:
       HOST: ${HOST}
       EXCHANGE_NAME: ${EXCHANGE_NAME}
     networks:
-      - rabbitmq-net
+      - laverie-net
 
   rabbitmq:
-    image: rabbitmq:4.2.2-management-alpine
     container_name: 'rabbitmq'
+    image: rabbitmq:4.2.2-management-alpine
     healthcheck:
       test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
     ports:
-      - 5672:5672
-      - 15672:15672
+      - "5672:5672"
+      - "15672:15672"
     volumes:
-      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq/
     networks:
-      - rabbitmq-net
+      - laverie-net
+
+  db:
+    image: postgres:16-alpine
+    container_name: 'laverie_db'
+    environment:
+      POSTGRES_NAME: ${POSTGRES_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - laverie_db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_PASSWORD}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - laverie-net
+
+volumes:
+  rabbitmq_data:
+  laverie_db:
 
 networks:
-  rabbitmq-net:
+  laverie-net:
     driver: bridge

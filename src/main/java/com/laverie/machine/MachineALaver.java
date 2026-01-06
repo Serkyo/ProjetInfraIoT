@@ -11,8 +11,12 @@ import com.rabbitmq.client.DeliverCallback;
 public class MachineALaver extends AppareilIOT {
     public String id;
 
+    public MachineALaver() {
+        super();
+        id = System.getenv("ID");
+    }
+
     public static void main(String[] args) {
-        System.out.println("DEMARRAGE");
         MachineALaver machineALaver = new MachineALaver();
         System.out.println(HOST);
         System.out.println(EXCHANGE_NAME);

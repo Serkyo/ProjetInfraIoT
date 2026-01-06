@@ -17,7 +17,5 @@ public abstract class AppareilIOT {
     public static void chargementEnv() {
         HOST = System.getenv("HOST");
         EXCHANGE_NAME = System.getenv("EXCHANGE_NAME");
-        System.out.println(HOST);
-        System.out.println(EXCHANGE_NAME);
     }
 }
