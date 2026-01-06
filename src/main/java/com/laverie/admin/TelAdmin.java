@@ -42,8 +42,7 @@ public class TelAdmin extends AppareilIOT {
         channel.basicConsume(queueName, true, deliverCallback, consumerTag -> { });
     }
 
-    private void upMachineALaver(int id) {
-        String message = "on";
+    private void toggleMachineALaver(int id, String action) {
 
         ConnectionFactory connectionFactory = new ConnectionFactory();
         connectionFactory.setHost(HOST);
@@ -54,7 +53,7 @@ public class TelAdmin extends AppareilIOT {
 
             System.out.println("Sending one message to machine " + id);
             String routingKey = "laverie.machine." + id + ".toggle";
-            newChannel.basicPublish(EXCHANGE_NAME, routingKey, null, message.getBytes(StandardCharsets.UTF_8));
+            newChannel.basicPublish(EXCHANGE_NAME, routingKey, null, action.getBytes(StandardCharsets.UTF_8));
             Thread.sleep(5000);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -69,7 +68,7 @@ public class TelAdmin extends AppareilIOT {
         System.out.println(EXCHANGE_NAME);
         try {
             tel.receiveData();
-            tel.upMachineALaver(Integer.parseInt(System.getenv("MACHINE1_ID")));
+            tel.toggleMachineALaver(Integer.parseInt(System.getenv("MACHINE1_ID")), "on");
         } catch (Exception e) {
             System.out.println(e);
         }
