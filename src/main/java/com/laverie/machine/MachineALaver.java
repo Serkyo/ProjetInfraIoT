@@ -1,8 +1,10 @@
 package com.laverie.machine;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.laverie.AppareilIOT;
+import com.laverie.utils.Cycles;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -11,11 +13,17 @@ import com.rabbitmq.client.DeliverCallback;
 public class MachineALaver extends AppareilIOT {
     public String id;
     public String status;
+    public double tempsRestant;
+    public Cycles cycle;
+    public boolean essorage;
 
     public MachineALaver() {
         super();
         id = System.getenv("ID");
         status = "off";
+        tempsRestant = 0;
+        cycle = null;
+        essorage = false;
     }
 
     public static void main(String[] args) {
@@ -87,5 +95,43 @@ public class MachineALaver extends AppareilIOT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void passageSeconde() {
+        tempsRestant -= 1;
+        if (tempsRestant == 0) {
+            status = "off";
+        }
+    }
+
+    private void lancerMachine(Cycles cycle, boolean essorage) throws Exception {
+        if (status != "off") {
+            throw new Exception("Machine déjà lancée");
+        }
+
+        status = "on";
+        tempsRestant = cycle.getTemps();
+
+        if (essorage) {
+            tempsRestant += 20 * 60;
+        }
+        this.cycle = cycle;
+    }
+
+    private float getConsoElec() {
+        float min = cycle.getConsoElecMin();
+        float max = cycle.getConsoElecMax();
+        if (essorage && tempsRestant <= 20) {
+            min += 2;
+            max += 2;
+        }
+        return ThreadLocalRandom.current().nextFloat(cycle.getConsoElecMin(), cycle.getConsoElecMax());
+    }
+
+    private float getConsoEau() {
+        if (essorage && tempsRestant <= 20) {
+            return 0;
+        }
+        return ThreadLocalRandom.current().nextFloat(cycle.getConsoEauMin(), cycle.getConsoEauMax());
     }
 }
