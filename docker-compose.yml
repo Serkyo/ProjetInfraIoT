@@ -1,5 +1,6 @@
 services:
   machine-a-laver1:
+    container_name: 'machine-a-laver-1'
     build:
       context: .
       dockerfile: src/main/java/com/laverie/machine/Dockerfile
@@ -16,6 +17,7 @@ services:
       - laverie-net
 
   machine-a-laver2:
+    container_name: 'machine-a-laver-2'
     build:
       context: .
       dockerfile: src/main/java/com/laverie/machine/Dockerfile
@@ -32,6 +34,7 @@ services:
       - laverie-net
 
   machine-a-laver3:
+    container_name: 'machine-a-laver-3'
     build:
       context: .
       dockerfile: src/main/java/com/laverie/machine/Dockerfile
@@ -83,7 +86,7 @@ services:
     image: postgres:16-alpine
     container_name: 'laverie_db'
     environment:
-      POSTGRES_NAME: ${POSTGRES_NAME}
+      POSTGRES_DB: ${POSTGRES_NAME}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
