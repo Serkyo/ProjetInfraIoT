@@ -56,7 +56,7 @@ public class MachineALaver extends AppareilIOT {
         }
     }
 
-    private void lancerMachine(Cycles cycle, boolean essorage) throws Exception {
+    public void lancerMachine(Cycles cycle, boolean essorage) throws Exception {
         if (status != "off") {
             throw new Exception("Machine déjà lancée");
         }
@@ -70,7 +70,7 @@ public class MachineALaver extends AppareilIOT {
         this.cycle = cycle;
     }
 
-    private float getConsoElec() {
+    public float getConsoElec() {
         float min = cycle.getConsoElecMin();
         float max = cycle.getConsoElecMax();
         if (essorage && tempsRestant <= 20) {
@@ -80,10 +80,14 @@ public class MachineALaver extends AppareilIOT {
         return ThreadLocalRandom.current().nextFloat(cycle.getConsoElecMin(), cycle.getConsoElecMax());
     }
 
-    private float getConsoEau() {
+    public float getConsoEau() {
         if (essorage && tempsRestant <= 20) {
             return 0;
         }
         return ThreadLocalRandom.current().nextFloat(cycle.getConsoEauMin(), cycle.getConsoEauMax());
+    }
+
+    public double getTempsRestant() {
+        return tempsRestant;
     }
 }
