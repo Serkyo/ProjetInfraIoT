@@ -1,11 +1,11 @@
 package com.laverie.utils;
 
 public enum Cycles {
-    COTON(40, 60 * 60, 10, 25, 0.75F, 1F),
-    SYNTHETIQUE(30, 45 * 60, 4.0F, 20.0F, 0.0F, 4.0F),
-    RAPIDE(30, 15 * 60, 10.0F, 40.0F, 2.0F, 8.0F),
-    INTENSIF(60, 90 * 60, 15.0F, 100.0F, 0.5F, 10.0F),
-    LAINE(20, 40 * 60, 2.0F, 15.0F, 1.0F, 12.0F);
+    COTON(40, 60, 10, 25, 0.75F, 1F),
+    SYNTHETIQUE(30, 45, 4.0F, 20.0F, 0.0F, 4.0F),
+    RAPIDE(30, 15, 10.0F, 40.0F, 2.0F, 8.0F),
+    INTENSIF(60, 90, 15.0F, 100.0F, 0.5F, 10.0F),
+    LAINE(20, 40, 2.0F, 15.0F, 1.0F, 12.0F);
 
     private final int temperature;
     private final int temps;

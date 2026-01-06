@@ -1,10 +1,12 @@
 package com.laverie.machine;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.laverie.AppareilIOT;
 import com.laverie.utils.Cycles;
+import com.laverie.utils.DatabaseManager;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -16,32 +18,44 @@ public class MachineALaver extends AppareilIOT {
     public double tempsRestant;
     public Cycles cycle;
     public boolean essorage;
+    public Date dateDebut;
+    public float consoElecTotale;
+    public float consoEauTotale;
 
     public MachineALaver() {
         super();
         id = System.getenv("ID");
-        status = "off";
-        tempsRestant = 0;
-        cycle = null;
-        essorage = false;
+        reset();
+        try {
+            onOff("on");
+        } catch (Exception e) {
+            System.out.println("YA PROBLEME");
+        }
     }
 
     public static void main(String[] args) {
         MachineALaver machineALaver = new MachineALaver();
-        System.out.println(HOST);
-        System.out.println(EXCHANGE_NAME);
         machineALaver.receive();
         machineALaver.emmeteur();
     }
 
-    private void onOff(String message) {
+    private void onOff(String message) throws Exception {
         switch (message) {
             case "on":
-                status = "on";
+                if (status != "pause") {
+                    Cycles[] tousLesCycles = Cycles.values();
+                    for(Cycles c : tousLesCycles)
+                        System.out.println(c);
+                    int randomIndex = ThreadLocalRandom.current().nextInt(tousLesCycles.length);
+                    lancerMachine(tousLesCycles[randomIndex], Math.random() > 0.5);
+                }
+                else {
+                    status = "on";
+                }
                 break;
             
             case "off":
-                status = "off";
+                reset();
                 break;
         
             default:
@@ -69,7 +83,11 @@ public class MachineALaver extends AppareilIOT {
 
                 // Exemple de vérification
                 if (routingKey.equals("laverie.machine." + id + ".toggle")) {
-                    onOff(message);
+                    try {
+                        onOff(message);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             };
             channel.basicConsume(queueName, true, deliverCallback, consumerTag -> { });
@@ -87,10 +105,10 @@ public class MachineALaver extends AppareilIOT {
             newChannel.exchangeDeclare(EXCHANGE_NAME, "topic");
 
             while (!Thread.currentThread().isInterrupted()) {
-                System.out.println("Sending one message from machine " + id);
-                String routingKey = "laverie.machine." + id + ".status";
-                newChannel.basicPublish(EXCHANGE_NAME, routingKey, null, status.getBytes(StandardCharsets.UTF_8));
-                Thread.sleep(5000);
+                System.out.println("Envoi des données de la machine n°" + id);
+                String routingKey = "laverie.machine." + id;
+                passageSeconde();
+                Thread.sleep(1000);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -98,24 +116,32 @@ public class MachineALaver extends AppareilIOT {
     }
 
     private void passageSeconde() {
-        tempsRestant -= 1;
-        if (tempsRestant == 0) {
-            status = "off";
+        if (tempsRestant >= 0 && status.equals("on")) {
+            tempsRestant -= 1;
+            consoElecTotale += getConsoElec();
+            consoEauTotale += getConsoEau();
+            if (tempsRestant <= 0) {
+                DatabaseManager.insererHistoriqueMachine(id , cycle, cycle.getTemps(), consoElecTotale, consoEauTotale, dateDebut, new Date());
+                reset();
+            }
         }
     }
 
     public void lancerMachine(Cycles cycle, boolean essorage) throws Exception {
-        if (status != "off") {
+        if (status == "on") {
             throw new Exception("Machine déjà lancée");
         }
 
         status = "on";
+        this.cycle = cycle;
+        this.dateDebut = new Date();
         tempsRestant = cycle.getTemps();
+        System.out.println("TEMPS RESTANT : " + tempsRestant);
 
         if (essorage) {
-            tempsRestant += 20 * 60;
+            this.essorage = true;
+            tempsRestant += 20;
         }
-        this.cycle = cycle;
     }
 
     public float getConsoElec() {
@@ -135,7 +161,13 @@ public class MachineALaver extends AppareilIOT {
         return ThreadLocalRandom.current().nextFloat(cycle.getConsoEauMin(), cycle.getConsoEauMax());
     }
 
-    public double getTempsRestant() {
-        return tempsRestant;
+    private void reset() {
+        status = "off";
+        tempsRestant = 0;
+        cycle = null;
+        essorage = false;
+        dateDebut = null;
+        consoElecTotale = 0;
+        consoEauTotale = 0;
     }
 }

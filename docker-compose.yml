@@ -1,3 +1,9 @@
+x-db-variables: &env-config
+  POSTGRES_DB: ${POSTGRES_NAME}
+  POSTGRES_USER: ${POSTGRES_USER}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  HOST: ${HOST}
+  EXCHANGE_NAME: ${EXCHANGE_NAME}
 services:
   machine-a-laver1:
     container_name: 'machine-a-laver-1'
@@ -10,8 +16,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      HOST: ${HOST}
-      EXCHANGE_NAME: ${EXCHANGE_NAME}
+      <<: *env-config
       ID: ${MACHINE1_ID}
     networks:
       - laverie-net
@@ -27,8 +32,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      HOST: ${HOST}
-      EXCHANGE_NAME: ${EXCHANGE_NAME}
+      <<: *env-config
       ID: ${MACHINE2_ID}
     networks:
       - laverie-net
@@ -44,8 +48,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      HOST: ${HOST}
-      EXCHANGE_NAME: ${EXCHANGE_NAME}
+      <<: *env-config
       ID: ${MACHINE3_ID}
     networks:
       - laverie-net
@@ -61,8 +64,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      HOST: ${HOST}
-      EXCHANGE_NAME: ${EXCHANGE_NAME}
+      <<: *env-config
       MACHINE1_ID: ${MACHINE1_ID}
       MACHINE2_ID: ${MACHINE2_ID}
       MACHINE3_ID: ${MACHINE3_ID}
@@ -89,9 +91,7 @@ services:
     image: postgres:16-alpine
     container_name: 'laverie_db'
     environment:
-      POSTGRES_DB: ${POSTGRES_NAME}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      <<: *env-config
     volumes:
       - laverie_db:/var/lib/postgresql/data
       - ./laverie_db.sql:/docker-entrypoint-initdb.d/init.sql
