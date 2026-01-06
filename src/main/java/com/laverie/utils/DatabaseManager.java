@@ -1,6 +1,10 @@
 package com.laverie.utils;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class DatabaseManager {
@@ -29,5 +33,9 @@ public class DatabaseManager {
         } catch (SQLException e) {
             System.err.println("An error occured while inserting into the database : " + e.getMessage());
         }
+    }
+
+    public static void getLogMachines() {
+        String sql = "SELECT * FROM log_machines";
     }
 }
