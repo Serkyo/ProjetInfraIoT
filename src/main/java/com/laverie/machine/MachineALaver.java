@@ -10,10 +10,12 @@ import com.rabbitmq.client.DeliverCallback;
 
 public class MachineALaver extends AppareilIOT {
     public String id;
+    public String status;
 
     public MachineALaver() {
         super();
         id = System.getenv("ID");
+        status = "off";
     }
 
     public static void main(String[] args) {
@@ -22,6 +24,22 @@ public class MachineALaver extends AppareilIOT {
         System.out.println(EXCHANGE_NAME);
         machineALaver.receive();
         machineALaver.emmeteur();
+    }
+
+    private void onOff(String message) {
+        switch (message) {
+            case "on":
+                status = "on";
+                break;
+            
+            case "off":
+                status = "off";
+                break;
+        
+            default:
+                status = "pause";
+                break;
+        }
     }
 
     private void receive() {
@@ -33,7 +51,7 @@ public class MachineALaver extends AppareilIOT {
     
             channel.exchangeDeclare(AppareilIOT.EXCHANGE_NAME, "topic");
             String queueName = channel.queueDeclare().getQueue();
-            channel.queueBind(queueName, AppareilIOT.EXCHANGE_NAME, "laverie.machine." + id +"");
+            channel.queueBind(queueName, AppareilIOT.EXCHANGE_NAME, "laverie.machine." + id + ".#");
     
             // System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
     
@@ -43,13 +61,7 @@ public class MachineALaver extends AppareilIOT {
 
                 // Exemple de vérification
                 if (routingKey.equals("laverie.machine." + id + ".toggle")) {
-                    System.out.println(" [x] Message accepté");
-                    System.out.println("     RoutingKey : " + routingKey);
-                    System.out.println("     Message    : " + message);
-
-                    // traitement du message ici
-                } else {
-                    System.out.println(" [!] Message ignoré (routingKey = " + routingKey + ")");
+                    onOff(message);
                 }
             };
             channel.basicConsume(queueName, true, deliverCallback, consumerTag -> { });
@@ -69,8 +81,7 @@ public class MachineALaver extends AppareilIOT {
             while (!Thread.currentThread().isInterrupted()) {
                 System.out.println("Sending one message from machine " + id);
                 String routingKey = "laverie.machine." + id + ".status";
-                double nombre = Math.random();
-                newChannel.basicPublish(EXCHANGE_NAME, routingKey, null, String.valueOf(nombre > 0.5).getBytes(StandardCharsets.UTF_8));
+                newChannel.basicPublish(EXCHANGE_NAME, routingKey, null, status.getBytes(StandardCharsets.UTF_8));
                 Thread.sleep(5000);
             }
         } catch (Exception e) {

@@ -60,6 +60,9 @@ services:
     environment:
       HOST: ${HOST}
       EXCHANGE_NAME: ${EXCHANGE_NAME}
+      MACHINE1_ID: ${MACHINE1_ID}
+      MACHINE2_ID: ${MACHINE2_ID}
+      MACHINE3_ID: ${MACHINE3_ID}
     networks:
       - laverie-net
 
