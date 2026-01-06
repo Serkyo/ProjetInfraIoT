@@ -34,8 +34,15 @@ public class TelAdmin extends AppareilIOT {
 
             String[] slicedRoutingKey = routingKey.split("\\.");
 
-            if (slicedRoutingKey[1].equals("machine") && slicedRoutingKey[3].equals("status")) {
-                System.out.println(" [x] Received '" + message + "' from machine à laver n°" + slicedRoutingKey[2]);
+            if (slicedRoutingKey[1].equals("machine")) {
+                
+                if (slicedRoutingKey[3].equals("status")) {
+                    System.out.println(" [x] Received '" + message + "' from machine à laver n°" + slicedRoutingKey[2]);
+                }
+                if (slicedRoutingKey[3].equals("temps_restant")) {
+                    System.out.println("Machine à laver n°" + slicedRoutingKey[2] + " => Il reste " + slicedRoutingKey[3] + "s");
+                }
+
             }
 
         };
