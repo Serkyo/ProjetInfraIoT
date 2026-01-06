@@ -69,10 +69,7 @@ public class TelAdmin extends AppareilIOT {
 
 
     public static void main(String[] args) {        
-        System.out.println("DEMARRAGE");
         TelAdmin tel = new TelAdmin();
-        System.out.println(HOST);
-        System.out.println(EXCHANGE_NAME);
         try {
             tel.receiveData();
             tel.toggleMachineALaver(Integer.parseInt(System.getenv("MACHINE1_ID")), "on");
