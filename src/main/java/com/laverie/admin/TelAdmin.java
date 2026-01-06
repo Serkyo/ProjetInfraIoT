@@ -36,7 +36,12 @@ public class TelAdmin extends AppareilIOT {
             String[] slicedRoutingKey = routingKey.split("\\.");
 
             if (slicedRoutingKey[1].equals("machine") && slicedRoutingKey[3].equals("fini")) {
-                DatabaseManager.getLogMachines();
+                try {
+                    Thread.sleep(2000);
+                    DatabaseManager.getLogMachines();
+                } catch (InterruptedException ex) {
+                    System.getLogger(TelAdmin.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                }
             }
 
         };
