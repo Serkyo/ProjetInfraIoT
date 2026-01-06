@@ -115,14 +115,14 @@ public class MachineALaver extends AppareilIOT {
         }
     }
 
-    private boolean passageSeconde() {
+    private boolean passageSeconde() throws Exception {
         if (tempsRestant >= 0 && status.equals("on")) {
             tempsRestant -= 1;
             consoElecTotale += getConsoElec();
             consoEauTotale += getConsoEau();
             if (tempsRestant < 0) {
                 DatabaseManager.insererHistoriqueMachine(id , cycle, cycle.getTemps(), consoElecTotale, consoEauTotale, dateDebut, new Date());
-                reset();
+                onOff("off");
                 return true;
             }
             return false;
