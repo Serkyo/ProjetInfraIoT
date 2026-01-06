@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS historique_machines (
     id SERIAL,
-    id_machine INT,
+    id_machine VARCHAR,
     type_cycle VARCHAR,
     duree INT,
     conso_elec FLOAT,
