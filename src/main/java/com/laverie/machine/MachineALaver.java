@@ -8,11 +8,14 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 public class MachineALaver extends AppareilIOT {
+    public String id;
+
+    public MachineALaver() {
+        id = System.getenv("ID");
+    }
+
     public static void main(String[] args) {
-        System.out.println("DEMARRAGE");
         MachineALaver machineALaver = new MachineALaver();
-        System.out.println(HOST);
-        System.out.println(EXCHANGE_NAME);
         machineALaver.emmeteur();
     }
 
@@ -25,8 +28,8 @@ public class MachineALaver extends AppareilIOT {
             newChannel.exchangeDeclare(EXCHANGE_NAME, "topic");
 
             while (!Thread.currentThread().isInterrupted()) {
-                System.out.println("Sending one message from machine " + uuid);
-                String routingKey = "laverie.machine." + uuid + ".status";
+                System.out.println("Sending one message from machine " + id);
+                String routingKey = "laverie.machine." + id + ".status";
                 double nombre = Math.random();
                 newChannel.basicPublish(EXCHANGE_NAME, routingKey, null, String.valueOf(nombre > 0.5).getBytes(StandardCharsets.UTF_8));
                 Thread.sleep(5000);
