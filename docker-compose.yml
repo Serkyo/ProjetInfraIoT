@@ -1,5 +1,6 @@
 services:
   machine-a-laver1:
+    container_name: 'machine-a-laver-1'
     build:
       context: .
       dockerfile: src/main/java/com/laverie/machine/Dockerfile
@@ -16,6 +17,7 @@ services:
       - laverie-net
 
   machine-a-laver2:
+    container_name: 'machine-a-laver-2'
     build:
       context: .
       dockerfile: src/main/java/com/laverie/machine/Dockerfile
@@ -32,6 +34,7 @@ services:
       - laverie-net
 
   machine-a-laver3:
+    container_name: 'machine-a-laver-3'
     build:
       context: .
       dockerfile: src/main/java/com/laverie/machine/Dockerfile
