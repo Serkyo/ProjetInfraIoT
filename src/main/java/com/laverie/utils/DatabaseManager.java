@@ -30,4 +30,19 @@ public class DatabaseManager {
             System.err.println("An error occured while inserting into the database : " + e.getMessage());
         }
     }
+
+    public static void insererLogMachine(String nouveauStatus, String idUtilisateur, String idMachine) {
+        String sql = "INSERT INTO log_machines (nouveau_status, date_changement, id_utilisateur, id_machine) VALUES (?, ?, ?, ?)";
+
+        try {
+            Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, nouveauStatus);
+            stmt.setTimestamp(2, new Timestamp(new Date().getTime()));
+            stmt.setString(3, idUtilisateur);
+            stmt.setString(4, idMachine);
+        } catch (SQLException e) {
+            System.err.println("An error occured while inserting into the database : " + e.getMessage());
+        }
+    }
 }

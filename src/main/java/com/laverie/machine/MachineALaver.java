@@ -26,11 +26,12 @@ public class MachineALaver extends AppareilIOT {
         super();
         id = System.getenv("ID");
         reset();
-        try {
-            onOff("on");
-        } catch (Exception e) {
-            System.out.println("YA PROBLEME");
-        }
+        // ↓↓↓ Test ↓↓↓
+//        try {
+//            onOff("on");
+//        } catch (Exception e) {
+//            System.out.println("YA PROBLEME");
+//        }
     }
 
     public static void main(String[] args) {
@@ -44,8 +45,6 @@ public class MachineALaver extends AppareilIOT {
             case "on":
                 if (status != "pause") {
                     Cycles[] tousLesCycles = Cycles.values();
-                    for(Cycles c : tousLesCycles)
-                        System.out.println(c);
                     int randomIndex = ThreadLocalRandom.current().nextInt(tousLesCycles.length);
                     lancerMachine(tousLesCycles[randomIndex], Math.random() > 0.5);
                 }
@@ -62,6 +61,7 @@ public class MachineALaver extends AppareilIOT {
                 status = "pause";
                 break;
         }
+        DatabaseManager.insererLogMachine(message, null, id);
     }
 
     private void receive() {
@@ -74,14 +74,11 @@ public class MachineALaver extends AppareilIOT {
             channel.exchangeDeclare(AppareilIOT.EXCHANGE_NAME, "topic");
             String queueName = channel.queueDeclare().getQueue();
             channel.queueBind(queueName, AppareilIOT.EXCHANGE_NAME, "laverie.machine." + id + ".#");
-    
-            // System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
-    
+
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 String routingKey = delivery.getEnvelope().getRoutingKey();
                 String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
 
-                // Exemple de vérification
                 if (routingKey.equals("laverie.machine." + id + ".toggle")) {
                     try {
                         onOff(message);
@@ -105,9 +102,12 @@ public class MachineALaver extends AppareilIOT {
             newChannel.exchangeDeclare(EXCHANGE_NAME, "topic");
 
             while (!Thread.currentThread().isInterrupted()) {
-                System.out.println("Envoi des données de la machine n°" + id);
-                String routingKey = "laverie.machine." + id;
-                passageSeconde();
+                String routingKey = "laverie.machine." + id + ".fini";
+                boolean lessiveTerminee = passageSeconde();
+                if (lessiveTerminee) {
+                    System.out.println("Lessive terminée pour la machine n°" + id);
+                    newChannel.basicPublish(EXCHANGE_NAME, routingKey, null, "true".getBytes(StandardCharsets.UTF_8));
+                }
                 Thread.sleep(1000);
             }
         } catch (Exception e) {
@@ -115,7 +115,7 @@ public class MachineALaver extends AppareilIOT {
         }
     }
 
-    private void passageSeconde() {
+    private boolean passageSeconde() {
         if (tempsRestant >= 0 && status.equals("on")) {
             tempsRestant -= 1;
             consoElecTotale += getConsoElec();
@@ -123,8 +123,11 @@ public class MachineALaver extends AppareilIOT {
             if (tempsRestant <= 0) {
                 DatabaseManager.insererHistoriqueMachine(id , cycle, cycle.getTemps(), consoElecTotale, consoEauTotale, dateDebut, new Date());
                 reset();
+                return true;
             }
+            return false;
         }
+        return false;
     }
 
     public void lancerMachine(Cycles cycle, boolean essorage) throws Exception {
@@ -136,7 +139,6 @@ public class MachineALaver extends AppareilIOT {
         this.cycle = cycle;
         this.dateDebut = new Date();
         tempsRestant = cycle.getTemps();
-        System.out.println("TEMPS RESTANT : " + tempsRestant);
 
         if (essorage) {
             this.essorage = true;
