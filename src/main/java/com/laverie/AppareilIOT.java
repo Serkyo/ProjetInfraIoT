@@ -2,12 +2,22 @@ package com.laverie;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
-public abstract class AppareilIOT implements Runnable {
+import java.util.UUID;
+
+public abstract class AppareilIOT {
     public static String HOST;
     public static String EXCHANGE_NAME;
+    public UUID uuid;
 
-    public static void chargementEnv(Dotenv instanceDotenv) {
-        HOST = instanceDotenv.get("HOST");
-        EXCHANGE_NAME = instanceDotenv.get("EXCHANGE_NAME");
+    public AppareilIOT() {
+        uuid = UUID.randomUUID();
+        AppareilIOT.chargementEnv();
+    }
+
+    public static void chargementEnv() {
+        HOST = System.getenv("HOST");
+        EXCHANGE_NAME = System.getenv("EXCHANGE_NAME");
+        System.out.println(HOST);
+        System.out.println(EXCHANGE_NAME);
     }
 }

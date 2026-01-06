@@ -1,7 +1,27 @@
 services:
+  machine-a-laver:
+    build:
+      context: .
+      dockerfile: src/main/java/com/laverie/machine/DockerFile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      HOST: ${HOST}
+      EXCHANGE_NAME: ${EXCHANGE_NAME}
+    networks:
+      - rabbitmq-net
+    deploy:
+      replicas: 5
+
   rabbitmq:
     image: rabbitmq:4.2.2-management-alpine
     container_name: 'rabbitmq'
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - 5672:5672
       - 15672:15672
