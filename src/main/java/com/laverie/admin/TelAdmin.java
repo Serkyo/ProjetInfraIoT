@@ -1,6 +1,7 @@
 package com.laverie.admin;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 import com.laverie.AppareilIOT;
 import com.rabbitmq.client.Channel;
@@ -28,8 +29,15 @@ public class TelAdmin extends AppareilIOT {
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+            String routingKey = delivery.getEnvelope().getRoutingKey();
             String message = new String(delivery.getBody(), "UTF-8");
-            System.out.println(" [x] Received '" + message + "'");
+
+            String[] slicedRoutingKey = routingKey.split("\\.");
+
+            if (slicedRoutingKey[1].equals("machine") && slicedRoutingKey[3].equals("status")) {
+                System.out.println(" [x] Received '" + message + "' from machine à laver n°" + slicedRoutingKey[2]);
+            }
+
         };
         channel.basicConsume(queueName, true, deliverCallback, consumerTag -> { });
     }
