@@ -15,7 +15,7 @@ import com.rabbitmq.client.DeliverCallback;
 public class MachineALaver extends AppareilIOT {
     public String id;
     public String status;
-    public double tempsRestant;
+    public int tempsRestant;
     public Cycles cycle;
     public boolean essorage;
     public Date dateDebut;
@@ -102,12 +102,8 @@ public class MachineALaver extends AppareilIOT {
             newChannel.exchangeDeclare(EXCHANGE_NAME, "topic");
 
             while (!Thread.currentThread().isInterrupted()) {
-                String routingKey = "laverie.machine." + id + ".fini";
-                boolean lessiveTerminee = passageSeconde();
-                if (lessiveTerminee) {
-                    System.out.println("Lessive terminée pour la machine n°" + id);
-                    newChannel.basicPublish(EXCHANGE_NAME, routingKey, null, "true".getBytes(StandardCharsets.UTF_8));
-                }
+                String routingKey = "laverie.machine." + id;
+                passageSeconde(newChannel, routingKey);
                 Thread.sleep(1000);
             }
         } catch (Exception e) {
@@ -115,7 +111,7 @@ public class MachineALaver extends AppareilIOT {
         }
     }
 
-    private boolean passageSeconde() throws Exception {
+    private void passageSeconde(Channel channel, String routingKey) throws Exception {
         if (tempsRestant >= 0 && status.equals("on")) {
             tempsRestant -= 1;
             consoElecTotale += getConsoElec();
@@ -123,11 +119,11 @@ public class MachineALaver extends AppareilIOT {
             if (tempsRestant < 0) {
                 DatabaseManager.insererHistoriqueMachine(id , cycle, cycle.getTemps(), consoElecTotale, consoEauTotale, dateDebut, new Date());
                 onOff("off");
-                return true;
             }
-            return false;
+            int tempsTotal = cycle.getTemps() + (essorage ? 20 : 0);
+            int progression = ((tempsTotal - tempsRestant) / tempsTotal) * 100;
+            channel.basicPublish(EXCHANGE_NAME, routingKey + ".status", null, String.valueOf(progression).getBytes(StandardCharsets.UTF_8));
         }
-        return false;
     }
 
     public void lancerMachine(Cycles cycle, boolean essorage) throws Exception {
