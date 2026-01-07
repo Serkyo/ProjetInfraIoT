@@ -102,6 +102,7 @@ public class MachineALaver extends AppareilIOT {
             newChannel.exchangeDeclare(EXCHANGE_NAME, "topic");
 
             while (!Thread.currentThread().isInterrupted()) {
+                System.out.println("Machine en cours de lavage...");
                 String routingKey = "laverie.machine." + id;
                 passageSeconde(newChannel, routingKey);
                 Thread.sleep(1000);
@@ -121,7 +122,11 @@ public class MachineALaver extends AppareilIOT {
                 onOff("off");
             }
             int tempsTotal = cycle.getTemps() + (essorage ? 20 : 0);
-            int progression = ((tempsTotal - tempsRestant) / tempsTotal) * 100;
+            int progression = ((tempsTotal - tempsRestant) *100) / tempsTotal;
+            System.out.println(progression);
+            System.out.println(tempsTotal);
+            System.out.println(tempsRestant);
+
             channel.basicPublish(EXCHANGE_NAME, routingKey + ".status", null, String.valueOf(progression).getBytes(StandardCharsets.UTF_8));
         }
     }
