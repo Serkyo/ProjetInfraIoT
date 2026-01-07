@@ -4,4 +4,4 @@ WORKDIR /app
 
 COPY target/ProjetInfraIoT-1.0-SNAPSHOT-jar-with-dependencies.jar app.jar
 
-ENTRYPOINT ["java", "-cp", "app.jar", "com.laverie.client"]
+ENTRYPOINT ["java", "-cp", "app.jar", "com.laverie.client.Client"]

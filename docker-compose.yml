@@ -71,6 +71,24 @@ services:
     networks:
       - laverie-net
 
+  client1:
+    container_name: 'client1'
+    build:
+      context: .
+      dockerfile: src/main/java/com/laverie/client/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      <<: *env-config
+      MACHINE1_ID: ${MACHINE1_ID}
+      MACHINE2_ID: ${MACHINE2_ID}
+      MACHINE3_ID: ${MACHINE3_ID}
+    networks:
+      - laverie-net
+
   rabbitmq:
     container_name: 'rabbitmq'
     image: rabbitmq:4.2.2-management-alpine
