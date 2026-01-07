@@ -3,8 +3,6 @@ package com.laverie.client;
 import java.nio.charset.StandardCharsets;
 
 import com.laverie.AppareilIOT;
-import com.laverie.admin.TelAdmin;
-import com.laverie.utils.DatabaseManager;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -38,7 +36,6 @@ public class Client extends AppareilIOT {
             System.out.println("Sending one message to machine " + id);
             String routingKey = "laverie.machine." + id + ".toggle";
             newChannel.basicPublish(EXCHANGE_NAME, routingKey, null, action.getBytes(StandardCharsets.UTF_8));
-            DatabaseManager.getLogMachines();
             System.out.println("DÉMARRAGE DE LA MACHINE N°" + id);
             self.receiveData(id);
         } catch (Exception e) {
@@ -56,20 +53,19 @@ public class Client extends AppareilIOT {
 
         channel.exchangeDeclare(AppareilIOT.EXCHANGE_NAME, "topic");
         String queueName = channel.queueDeclare().getQueue();
-        channel.queueBind(queueName, AppareilIOT.EXCHANGE_NAME, "laverie.machine." + id + ".fini");
+        channel.queueBind(queueName, AppareilIOT.EXCHANGE_NAME, "laverie.machine." + id + ".status");
 
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
         DeliverCallback deliverCallback;
         deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), "UTF-8");
+            int msg = Integer.parseInt(message);
 
-            try {
-                Thread.sleep(2000);
-                // DatabaseManager.getLogMachines();
+            if (msg == 100) {
                 System.out.println("Votre machine n°" + id + " est terminée !");
-            } catch (InterruptedException ex) {
-                System.getLogger(TelAdmin.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            } else {
+                System.out.println("La progession de la machine n°" + id + " est à " + msg + "%");
             }
 
         };
