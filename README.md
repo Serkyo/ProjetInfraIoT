@@ -42,3 +42,6 @@ Lancez l'infrastructure complète avec deux commandes :
 mvn clean package
 docker compose up --build -d
 ```
+## Possibilité d'amélioration
+Le projet pourrait être amélioré en suivant le graphique ci-dessous
+![graph_ameliorations.png](graph_ameliorations.png)
